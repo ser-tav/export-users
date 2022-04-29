@@ -57,10 +57,10 @@ class ExportUsers {
 
 	public function bulk_action() {
 		// get the action
-		$wp_list_table = _get_list_table( 'WP_Users_List_Table' );
-		$action        = $wp_list_table->current_action();
-
+		$wp_list_table   = _get_list_table( 'WP_Users_List_Table' );
+		$action          = $wp_list_table->current_action();
 		$allowed_actions = [ 'export' ];
+
 		if ( ! in_array( $action, $allowed_actions ) ) {
 			return;
 		}
@@ -90,70 +90,55 @@ class ExportUsers {
 	}
 
 	public function export_all_users_csv() {
-		if ( ! empty( $_POST['export-users'] ) ) {
-			if ( current_user_can( 'manage_options' ) ) {
+		if ( current_user_can( 'manage_options' ) ) {
+			if ( ! empty( $_POST['export-users'] ) ) {
 
 				// get all users
-				$exportusers = get_users( [ 'order' => 'ASC', 'orderby' => 'display_name', 'fields' => 'all' ] );
-				$delimiter   = ",";
-				$filename    = "users-" . date( 'd-m-Y' ) . ".csv";
-				// create a file pointer
-				$out = fopen( 'php://output', 'w' );
-				// set column headers
-				$fields = [ 'Имя', 'Фамилия', 'Email', 'Роль', 'Дата регистрации' ];
+				$export_users = get_users( [ 'order' => 'ASC', 'orderby' => 'display_name', 'fields' => 'ID' ] );
+				$this->export_template( $export_users );
 
-				fputcsv( $out, $fields, $delimiter );
-
-				// output each row of the data, format line as csv and write to file pointer
-				foreach ( $exportusers as $user ) {
-					$meta            = get_user_meta( $user->ID );
-					$first_name      = ( isset( $meta['first_name'][0] ) && $meta['first_name'][0] != '' ) ? $meta['first_name'][0] : '';
-					$last_name       = ( isset( $meta['last_name'][0] ) && $meta['last_name'][0] != '' ) ? $meta['last_name'][0] : '';
-					$email           = $user->user_email;
-					$role            = $user->roles[0];
-					$registered_date = $user->user_registered;
-					$lineData        = [ $first_name, $last_name, $email, $role, $registered_date ];
-
-					fputcsv( $out, $lineData, $delimiter );
-				}
-
-				header( "Content-type: application/force-download" );
-				header( 'Content-Disposition: inline; filename="' . $filename . '";' );
-
-				fpassthru( $out );
+				exit();
 			}
-			exit;
 		}
 	}
 
 	public function selected_export( $user_ids ) {
 		if ( current_user_can( 'manage_options' ) ) {
-			$delimiter = ",";
-			$filename  = "users-" . date( 'd-m-Y' ) . ".csv";
-			$out       = fopen( 'php://output', 'w' );
-			$fields    = [ 'Имя', 'Фамилия', 'Email', 'Роль', 'Дата регистрации' ];
 
-			fputcsv( $out, $fields, $delimiter );
+			$export_users = $user_ids;
+			$this->export_template( $export_users );
 
-			foreach ( $user_ids as $user_id ) {
-				$user_data       = get_userdata( $user_id );
-				$first_name      = ( isset( $user_data->first_name ) && $user_data->first_name != '' ) ? $user_data->first_name : '';
-				$last_name       = ( isset( $user_data->last_name ) && $user_data->last_name != '' ) ? $user_data->last_name : '';
-				$email           = $user_data->user_email;
-				$role            = $user_data->roles[0];
-				$registered_date = $user_data->user_registered;
-				$lineData        = [ $first_name, $last_name, $email, $role, $registered_date ];
-
-				fputcsv( $out, $lineData, $delimiter );
-			}
-
-			header( "Content-type: application/force-download" );
-			header( 'Content-Disposition: inline; filename="' . $filename . '";' );
-
-			fpassthru( $out );
+			exit();
 		}
-		exit();
 	}
+
+	public function export_template( $export_users ) {
+
+		$delimiter = ",";
+		$filename  = "users-" . date( 'd-m-Y' ) . ".csv";
+		$out       = fopen( 'php://output', 'w' );
+		$fields    = [ 'Имя', 'Фамилия', 'Email', 'Роль', 'Дата регистрации' ];
+
+		fputcsv( $out, $fields, $delimiter );
+
+		foreach ( $export_users as $user_id ) {
+			$user_data       = get_userdata( $user_id );
+			$first_name      = ( isset( $user_data->first_name ) && $user_data->first_name != '' ) ? $user_data->first_name : '';
+			$last_name       = ( isset( $user_data->last_name ) && $user_data->last_name != '' ) ? $user_data->last_name : '';
+			$email           = $user_data->user_email;
+			$role            = $user_data->roles[0];
+			$registered_date = $user_data->user_registered;
+			$lineData        = [ $first_name, $last_name, $email, $role, $registered_date ];
+
+			fputcsv( $out, $lineData, $delimiter );
+		}
+
+		header( "Content-type: application/force-download" );
+		header( 'Content-Disposition: inline; filename="' . $filename . '";' );
+
+		fpassthru( $out );
+	}
+
 }
 
 if ( class_exists( 'ExportUsers' ) ) {
