@@ -27,21 +27,21 @@ class ExportUsers
         add_action('load-users.php', array(&$this, 'bulk_action'));
     }
 
-    static function activation()
+    public static function activation()
     {
 
         //update rewrite rules
         flush_rewrite_rules();
     }
 
-    static function deactivation()
+    public static function deactivation()
     {
 
         //update rewrite rules
         flush_rewrite_rules();
     }
 
-    function bulk_admin_footer()
+    public function bulk_admin_footer()
     {
         // check if the user page is
         $screen = get_current_screen();
@@ -60,7 +60,7 @@ class ExportUsers
         <?php
     }
 
-    public function bulk_action()
+	public function bulk_action()
     {
         // get the action
         $wp_list_table = _get_list_table('WP_Users_List_Table');
@@ -142,7 +142,7 @@ class ExportUsers
         }
     }
 
-    function selected_export($user_ids)
+    public function selected_export($user_ids)
     {
         if (current_user_can('manage_options')) {
             $delimiter = ",";
