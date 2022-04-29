@@ -54,7 +54,7 @@ class ExportUsers
                 // Add "Export selected" option
                 $('<option>').val('export').text('<?php _e('Export selected')?>').appendTo("select[name='action']");
                 // Add "Export all" button
-                $('.tablenav.top .clear, .tablenav.bottom .clear').before('<form action="#" method="POST"><input type="hidden" id="export_csv" name="export-users" value="1" /><input class="button button-primary user_export_button" style="margin-top:3px;" type="submit" value="<?php esc_attr_e('Export all', 'export-users');?>" /></form>');
+                $('.tablenav.top .clear, .tablenav.bottom .clear').before('<form action="#" method="POST"><input type="hidden" id="export_csv" name="export-users" value="1" /><input class="button button-primary user_export_button" type="submit" value="<?php esc_attr_e('Export all', 'export-users');?>" /></form>');
             });
         </script>
         <?php
