@@ -80,7 +80,7 @@ class ExportUsers
         }
 
         if (empty($user_ids)) {
-            return;
+	        wp_safe_redirect('users.php');
         }
 
         switch ($action) {
@@ -99,13 +99,15 @@ class ExportUsers
     {
         if (!empty($_POST['export-users'])) {
             if (current_user_can('manage_options')) {
+
+	            // the user query
                 $args = array(
                     'order' => 'ASC',
                     'orderby' => 'display_name',
                     'fields' => 'all',
                 );
 
-                // the user query
+                // get all users
                 $exportusers = get_users($args);
 
                 $delimiter = ",";
