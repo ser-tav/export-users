@@ -43,7 +43,7 @@ class ExportUsers
 
     function bulk_admin_footer()
     {
-        // check users page
+        // check if the user page is
         $screen = get_current_screen();
         if ($screen->id != "users") {
             return;
