@@ -98,7 +98,7 @@ class ExportUsers
 
                 $exported = 0;
                 foreach ($user_ids as $user_id) {
-                    if (!$this->perform_export($user_ids)) {
+                    if (!$this->selected_export($user_ids)) {
                         wp_die(__('Error exporting user.'));
                     }
 
@@ -137,18 +137,19 @@ class ExportUsers
                 $out = fopen('php://output', 'w');
 
                 // Set column headers
-                $fields = array('Имя', 'Фамилия', 'Email', 'Роль');
+                $fields = array( 'Имя', 'Фамилия', 'Email', 'Роль', 'Дата регистрации' );
                 fputcsv($out, $fields, $delimiter);
 
                 // Output each row of the data, format line as csv and write to file pointer
                 foreach ($exportusers as $user) {
                     $meta = get_user_meta($user->ID);
-                    $role = $user->roles;
+                    $role = $user->roles[0];
                     $email = $user->user_email;
                     $first_name = (isset($meta['first_name'][0]) && $meta['first_name'][0] != '') ? $meta['first_name'][0] : '';
                     $last_name = (isset($meta['last_name'][0]) && $meta['last_name'][0] != '') ? $meta['last_name'][0] : '';
+                    $registered_date = $user->user_registered;
 
-                    $lineData = array($first_name, $last_name, $email, $role[0]);
+                    $lineData = array($first_name, $last_name, $email, $role, $registered_date);
                     fputcsv($out, $lineData, $delimiter);
                 }
 
@@ -161,25 +162,26 @@ class ExportUsers
         }
     }
 
-    function perform_export($user_ids)
+    function selected_export($user_ids)
     {
         if (current_user_can('manage_options')) {
             $delimiter = ",";
             $filename = "users-" . date('d-m-Y') . ".csv";
 
             $out = fopen('php://output', 'w');
-            $fields = array('Имя', 'Фамилия', 'Email', 'Роль');
+            $fields = array( 'Имя', 'Фамилия', 'Email', 'Роль', 'Дата регистрации' );
             fputcsv($out, $fields, $delimiter);
 
             foreach ($user_ids as $user_id) {
                 $user_data = get_userdata($user_id);
                 $role = $user_data->roles[0];
                 $email = $user_data->user_email;
+                $registered_date = $user_data->user_registered;
 
                 $first_name = (isset($user_data->first_name) && $user_data->first_name != '') ? $user_data->first_name : '';
                 $last_name = (isset($user_data->last_name) && $user_data->last_name != '') ? $user_data->last_name : '';
 
-                $lineData = array($first_name, $last_name, $email, $role);
+                $lineData = array($first_name, $last_name, $email, $role, $registered_date);
                 fputcsv($out, $lineData, $delimiter);
             }
 
