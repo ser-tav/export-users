@@ -19,10 +19,10 @@ class ExportUsers
     public function register()
     {
 
-        //Add export hook
+        //add export hook
         add_action('admin_init', [$this, 'export_all_users_csv']);
 
-        //Add button hook
+        //add button hook
         add_action('admin_footer-users.php', array(&$this, 'bulk_admin_footer'));
         add_action('load-users.php', array(&$this, 'bulk_action'));
     }
@@ -43,7 +43,7 @@ class ExportUsers
 
     function bulk_admin_footer()
     {
-        // Check users page
+        // check users page
         $screen = get_current_screen();
         if ($screen->id != "users") {
             return;
@@ -51,9 +51,9 @@ class ExportUsers
         ?>
         <script type="text/javascript">
             jQuery(document).ready(function ($) {
-                // Add "Export selected" option
+                // add "Export selected" option
                 $('<option>').val('export').text('<?php _e('Export selected')?>').appendTo("select[name='action']");
-                // Add "Export all" button
+                // add "Export all" button
                 $('.tablenav.top .clear, .tablenav.bottom .clear').before('<form action="#" method="POST"><input type="hidden" id="export_csv" name="export-users" value="1" /><input class="button button-primary user_export_button" type="submit" value="<?php esc_attr_e('Export all', 'export-users');?>" /></form>');
             });
         </script>
@@ -85,12 +85,8 @@ class ExportUsers
 
         switch ($action) {
             case 'export':
-                $exported = 0;
-                foreach ($user_ids as $user_id) {
-                    if (!$this->selected_export($user_ids)) {
-                        wp_die(__('Error exporting user.'));
-                    }
-                    $exported++;
+                if (!$this->selected_export($user_ids)) {
+                    wp_die(__('Error exporting user.'));
                 }
                 break;
             default:
@@ -109,26 +105,26 @@ class ExportUsers
                     'fields' => 'all',
                 );
 
-                // The user query
+                // the user query
                 $exportusers = get_users($args);
 
                 $delimiter = ",";
                 $filename = "users-" . date('d-m-Y') . ".csv";
 
-                // Create a file pointer
+                // create a file pointer
                 $out = fopen('php://output', 'w');
 
-                // Set column headers
+                // set column headers
                 $fields = array('Имя', 'Фамилия', 'Email', 'Роль', 'Дата регистрации');
                 fputcsv($out, $fields, $delimiter);
 
-                // Output each row of the data, format line as csv and write to file pointer
+                // output each row of the data, format line as csv and write to file pointer
                 foreach ($exportusers as $user) {
                     $meta = get_user_meta($user->ID);
-                    $role = $user->roles[0];
-                    $email = $user->user_email;
-                    $first_name = (isset($meta['first_name'][0]) && $meta['first_name'][0] != '') ? $meta['first_name'][0] : '';
-                    $last_name = (isset($meta['last_name'][0]) && $meta['last_name'][0] != '') ? $meta['last_name'][0] : '';
+	                $first_name = (isset($meta['first_name'][0]) && $meta['first_name'][0] != '') ? $meta['first_name'][0] : '';
+	                $last_name = (isset($meta['last_name'][0]) && $meta['last_name'][0] != '') ? $meta['last_name'][0] : '';
+	                $email = $user->user_email;
+	                $role = $user->roles[0];
                     $registered_date = $user->user_registered;
 
                     $lineData = array($first_name, $last_name, $email, $role, $registered_date);
@@ -177,9 +173,9 @@ class ExportUsers
 }
 
 if (class_exists('ExportUsers')) {
-    $exportusers = new ExportUsers();
-    $exportusers->register();
+    $export_users = new ExportUsers();
+    $export_users->register();
 }
 
-register_activation_hook(__FILE__, array($exportusers, 'activation'));
-register_deactivation_hook(__FILE__, array($exportusers, 'deactivation'));
+register_activation_hook(__FILE__, array($export_users, 'activation'));
+register_deactivation_hook(__FILE__, array($export_users, 'deactivation'));
