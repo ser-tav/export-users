@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Export Users to csv
-Description: Plugin export users to csv
+Description: Plugin for export users to csv
 Version: 1.0
 Author: Sergey T
 Author URI: https://github.com/ser-tav/
@@ -21,8 +21,8 @@ class ExportUsers {
 		add_action( 'admin_init', [ $this, 'export_all_users_csv' ] );
 
 		//Add button hook
-		add_action( 'admin_footer-users.php', array( &$this, 'custom_bulk_admin_footer' ) );
-		add_action( 'load-users.php', array( &$this, 'custom_bulk_action' ) );
+		add_action( 'admin_footer-users.php', array( &$this, 'bulk_admin_footer' ) );
+		add_action( 'load-users.php', array( &$this, 'bulk_action' ) );
 	}
 
 	static function activation() {
@@ -37,7 +37,8 @@ class ExportUsers {
 		flush_rewrite_rules();
 	}
 
-	function custom_bulk_admin_footer() {
+	function bulk_admin_footer() {
+		// Check users page
 		$screen = get_current_screen();
 		if ( $screen->id != "users" ) {
 			return;
@@ -54,7 +55,7 @@ class ExportUsers {
 		<?php
 	}
 
-	public function custom_bulk_action() {
+	public function bulk_action() {
 
 		// get the action
 		$wp_list_table = _get_list_table( 'WP_Users_List_Table' );
@@ -103,7 +104,7 @@ class ExportUsers {
 			default:
 				return;
 		}
-        
+
 		$sendback = remove_query_arg( array( 'action' ), $sendback );
 		wp_redirect( $sendback );
 
