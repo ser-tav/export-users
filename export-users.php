@@ -51,7 +51,7 @@ class ExportUsers
         ?>
         <script>
             jQuery(document).ready(function ($) {
-                // add "Export selected" option
+                // add "Export" option
                 $('<option>').val('export').text('<?php _e('Export')?>').appendTo("select[name='action']");
                 // add "Export all" button
                 $('.tablenav.top .clear, .tablenav.bottom .clear').before('<form action="#" method="POST"><input type="hidden" id="export_csv" name="export-users" value="1" /><input class="button button-primary user_export_button" type="submit" value="<?php esc_attr_e('Export all', 'export-users');?>" /></form>');
