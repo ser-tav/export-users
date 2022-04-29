@@ -76,7 +76,7 @@ class ExportUsers {
 
 		switch ( $action ) {
 			case 'export':
-				if ( ! $this->selected_export( $user_ids ) ) {
+				if ( ! $this->export_selected( $user_ids ) ) {
 					wp_die( __( 'Error exporting user.' ) );
 				}
 				break;
@@ -99,7 +99,7 @@ class ExportUsers {
 		}
 	}
 
-	public function selected_export( $user_ids ) {
+	public function export_selected( $user_ids ) {
 		if ( current_user_can( 'manage_options' ) ) {
 
 			$export_users = $user_ids;
