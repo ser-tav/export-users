@@ -17,12 +17,12 @@ class ExportUsers {
 
 	public function register() {
 
-		//add export hook
-		add_action( 'admin_init', [ $this, 'export_all_users_csv' ] );
-
 		//add button hook
 		add_action( 'admin_footer-users.php', [ &$this, 'bulk_admin_footer' ] );
 		add_action( 'load-users.php', [ &$this, 'bulk_action' ] );
+
+		//add export hook
+		add_action( 'admin_init', [ $this, 'export_all_users_csv' ] );
 	}
 
 	public static function activation() {
