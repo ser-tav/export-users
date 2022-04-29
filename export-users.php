@@ -65,9 +65,6 @@ class ExportUsers {
 			return;
 		}
 
-		// security check
-		check_admin_referer( 'bulk-users' );
-
 		// make sure ids are submitted.
 		if ( isset( $_REQUEST['users'] ) ) {
 			$user_ids = array_map( 'intval', $_REQUEST['users'] );
