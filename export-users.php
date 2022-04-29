@@ -62,7 +62,6 @@ class ExportUsers
 
     public function bulk_action()
     {
-
         // get the action
         $wp_list_table = _get_list_table('WP_Users_List_Table');
         $action = $wp_list_table->current_action();
@@ -84,36 +83,19 @@ class ExportUsers
             return;
         }
 
-        // this is based on wp-admin/edit.php
-        $sendback = remove_query_arg(array('exported', 'untrashed', 'deleted', 'ids'), wp_get_referer());
-        if (!$sendback) {
-            $sendback = admin_url("users.php");
-        }
-
-        $pagenum = $wp_list_table->get_pagenum();
-        $sendback = add_query_arg('paged', $pagenum, $sendback);
-
         switch ($action) {
             case 'export':
-
                 $exported = 0;
                 foreach ($user_ids as $user_id) {
                     if (!$this->selected_export($user_ids)) {
                         wp_die(__('Error exporting user.'));
                     }
-
                     $exported++;
                 }
-
-                $sendback = add_query_arg(array('exported' => $exported, 'ids' => join(',', $user_ids)), $sendback);
                 break;
             default:
                 return;
         }
-
-        $sendback = remove_query_arg(array('action'), $sendback);
-        wp_redirect($sendback);
-
         exit();
     }
 
@@ -127,7 +109,7 @@ class ExportUsers
                     'fields' => 'all',
                 );
 
-                // The User Query
+                // The user query
                 $exportusers = get_users($args);
 
                 $delimiter = ",";
@@ -137,7 +119,7 @@ class ExportUsers
                 $out = fopen('php://output', 'w');
 
                 // Set column headers
-                $fields = array( 'Имя', 'Фамилия', 'Email', 'Роль', 'Дата регистрации' );
+                $fields = array('Имя', 'Фамилия', 'Email', 'Роль', 'Дата регистрации');
                 fputcsv($out, $fields, $delimiter);
 
                 // Output each row of the data, format line as csv and write to file pointer
@@ -169,7 +151,7 @@ class ExportUsers
             $filename = "users-" . date('d-m-Y') . ".csv";
 
             $out = fopen('php://output', 'w');
-            $fields = array( 'Имя', 'Фамилия', 'Email', 'Роль', 'Дата регистрации' );
+            $fields = array('Имя', 'Фамилия', 'Email', 'Роль', 'Дата регистрации');
             fputcsv($out, $fields, $delimiter);
 
             foreach ($user_ids as $user_id) {
