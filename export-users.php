@@ -35,29 +35,31 @@ class ExportUsers {
 		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), [ $this, 'add_plugin_setting_link' ] );
 	}
 
+	// activation function
 	public static function activation() {
 
 		//update rewrite rules
 		flush_rewrite_rules();
 	}
 
+    // deactivation function
 	public static function deactivation() {
 
 		//update rewrite rules
 		flush_rewrite_rules();
 	}
 
-	//Enqueue Admin
+	// enqueue Admin
 	public function enqueue_admin() {
 		wp_enqueue_style( 'exportUserStyle', plugins_url( '/assets/admin/styles.css', __FILE__ ) );
 		wp_enqueue_script( 'exportUserScript', plugins_url( '/assets/admin/scripts.js', __FILE__ ) );
 	}
 
-	//Register settings
+	// register settings
 	public function settings_init() {
 
 		register_setting( 'export-users_settings', 'export_settings_options' );
-		add_settings_section( 'export_settings_section', esc_html__( 'Export settings', 'export-users' ), [ $this, 'settings_section_html' ], 'export_settings' );
+		add_settings_section( 'export_settings_section', esc_html__( 'Export settings', 'export-users' ), '', 'export_settings' );
 		add_settings_field(
 			'checkbox_element',
 			'Exported user fields',
@@ -67,10 +69,7 @@ class ExportUsers {
 		);
 	}
 
-	public function settings_section_html() {
-		// section function
-	}
-
+    // checkbox callback function
 	function sandbox_checkbox_element_callback() {
 
 		$options          = get_option( 'export_settings_options', [] );
@@ -119,7 +118,7 @@ class ExportUsers {
 		<?php
 	}
 
-	//Add settings link to plugin page
+	// add settings link to plugin page
 	public function add_plugin_setting_link( $link ) {
 		$custom_link = '<a href="users.php?page=export_settings">' . esc_html__( 'Settings', 'export-users' ) . '</a>';
 		array_push( $link, $custom_link );
@@ -127,7 +126,7 @@ class ExportUsers {
 		return $link;
 	}
 
-	//Add menu page
+	// add menu page
 	public function add_admin_menu() {
 		add_submenu_page(
 			'users.php',
@@ -140,11 +139,12 @@ class ExportUsers {
 		);
 	}
 
-	//AleBooking Admin HTML
+	// ExportUsers admin HTML
 	public function export_page() {
 		require_once plugin_dir_path( __FILE__ ) . 'admin/admin.php';
 	}
 
+    // add admin footer script
 	public function bulk_admin_footer() {
 		// check if the user page is
 		$screen = get_current_screen();
@@ -163,6 +163,7 @@ class ExportUsers {
 		<?php
 	}
 
+	// export selected users action
 	public function bulk_action() {
 		// get the action
 		$wp_list_table   = _get_list_table( 'WP_Users_List_Table' );
@@ -194,6 +195,18 @@ class ExportUsers {
 		exit();
 	}
 
+    // export selected users
+	public function export_selected( $user_ids ) {
+		if ( current_user_can( 'manage_options' ) ) {
+
+			$export_users = $user_ids;
+			$this->export_template( $export_users );
+
+			exit();
+		}
+	}
+
+	// export all users
 	public function export_all_users_csv() {
 		if ( current_user_can( 'manage_options' ) ) {
 			if ( ! empty( $_POST['export-users'] ) ) {
@@ -207,16 +220,7 @@ class ExportUsers {
 		}
 	}
 
-	public function export_selected( $user_ids ) {
-		if ( current_user_can( 'manage_options' ) ) {
-
-			$export_users = $user_ids;
-			$this->export_template( $export_users );
-
-			exit();
-		}
-	}
-
+    // csv template
 	public function export_template( $export_users ) {
 
 		$options = get_option( 'export_settings_options' )['checkbox_element'];
@@ -274,7 +278,6 @@ class ExportUsers {
 			wp_safe_redirect( 'users.php?page=export_settings' );
 		}
 	}
-
 }
 
 if ( class_exists( 'ExportUsers' ) ) {
