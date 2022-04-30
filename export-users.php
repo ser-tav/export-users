@@ -17,12 +17,19 @@ class ExportUsers {
 
 	public function register() {
 
-		//add button hook
+		// add button hook
 		add_action( 'admin_footer-users.php', [ &$this, 'bulk_admin_footer' ] );
 		add_action( 'load-users.php', [ &$this, 'bulk_action' ] );
 
-		//add export hook
+		// add export hook
 		add_action( 'admin_init', [ $this, 'export_all_users_csv' ] );
+
+		// add menu admin
+		add_action( 'admin_menu', [ $this, 'add_admin_menu' ] );
+		add_action( 'admin_init', [ $this, 'settings_init' ], 999 );
+
+		// add link to plugin page
+		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), [ $this, 'add_plugin_setting_link' ] );
 	}
 
 	public static function activation() {
@@ -35,6 +42,82 @@ class ExportUsers {
 
 		//update rewrite rules
 		flush_rewrite_rules();
+	}
+
+	//Register settings
+	public function settings_init() {
+
+		register_setting( 'export-users_settings', 'export_settings_options' );
+		add_settings_section( 'export_settings_section', esc_html__( 'Export settings', 'export-users' ), [ $this, 'settings_section_html' ], 'export_settings' );
+		add_settings_field(
+			'checkbox_element',
+			'User export fields',
+			[ $this, 'sandbox_checkbox_element_callback' ],
+			'export_settings',
+			'export_settings_section'
+		);
+	}
+
+	public function settings_section_html() {
+		// section function
+	}
+
+	function sandbox_checkbox_element_callback() {
+
+		$options          = get_option( 'export_settings_options', [] );
+		$checkbox_element = isset( $options['checkbox_element'] ) ? (array) $options['checkbox_element'] : [];
+		?>
+        <div>
+            <input type="checkbox" id="id" value="User ID" name="export_settings_options[checkbox_element][]" <?php checked( in_array( 'User ID', $checkbox_element ), 1 ); ?> />
+            <label for="id"><?= esc_html__( 'User ID', 'export-users' ); ?></label>
+        </div>
+        <div>
+            <input type="checkbox" id="first_name" value="First name" name="export_settings_options[checkbox_element][]" <?php checked( in_array( 'First name', $checkbox_element ), 1 ); ?> />
+            <label for="first_name"><?= esc_html__( 'First name', 'export-users' ); ?></label>
+        </div>
+        <div>
+            <input type="checkbox" id="last_name" value="Last name" name="export_settings_options[checkbox_element][]" <?php checked( in_array( 'Last name', $checkbox_element ), 1 ); ?> />
+            <label for="last_name"><?= esc_html__( 'Last name', 'export-users' ); ?></label>
+        </div>
+        <div>
+            <input type="checkbox" id="email" value="Email" name="export_settings_options[checkbox_element][]" <?php checked( in_array( 'Email', $checkbox_element ), 1 ); ?> />
+            <label for="email"><?= esc_html__( 'Email', 'export-users' ); ?></label>
+        </div>
+        <div>
+            <input type="checkbox" id="role" value="Role" name="export_settings_options[checkbox_element][]" <?php checked( in_array( 'Role', $checkbox_element ), 1 ); ?> />
+            <label for="role"><?= esc_html__( 'Role', 'export-users' ); ?></label>
+        </div>
+        <div>
+            <input type="checkbox" id="registered_date" value="Registered date" name="export_settings_options[checkbox_element][]" <?php checked( in_array( 'Registered date', $checkbox_element ), 1 ); ?> />
+            <label for="registered_date"><?= esc_html__( 'Registered date', 'export-users' ); ?></label>
+        </div>
+		<?php
+	}
+
+	//Add settings link to plugin page
+	public function add_plugin_setting_link( $link ) {
+		$custom_link = '<a href="users.php?page=export_settings">' . esc_html__( 'Settings', 'export-users' ) . '</a>';
+		array_push( $link, $custom_link );
+
+		return $link;
+	}
+
+	//Add menu page
+	public function add_admin_menu() {
+		add_submenu_page(
+			'users.php',
+			esc_html__( 'Export Settings Page', 'export-users' ),
+			esc_html__( 'Export Settings', 'export-users' ),
+			'manage_options',
+			'export_settings',
+			[ $this, 'export_page' ],
+			100
+		);
+	}
+
+	//AleBooking Admin HTML
+	public function export_page() {
+		require_once plugin_dir_path( __FILE__ ) . 'admin/admin.php';
 	}
 
 	public function bulk_admin_footer() {
@@ -111,12 +194,12 @@ class ExportUsers {
 
 	public function export_template( $export_users ) {
 
+		$options   = get_option( 'export_settings_options' )['checkbox_element'];
 		$delimiter = ",";
 		$filename  = "users-" . date( 'd-m-Y' ) . ".csv";
 		$out       = fopen( 'php://output', 'w' );
-		$fields    = [ 'Имя', 'Фамилия', 'Email', 'Роль', 'Дата регистрации' ];
 
-		fputcsv( $out, $fields, $delimiter );
+		fputcsv( $out, $options, $delimiter );
 
 		foreach ( $export_users as $user_id ) {
 			$user_data       = get_userdata( $user_id );
@@ -125,7 +208,26 @@ class ExportUsers {
 			$email           = $user_data->user_email;
 			$role            = $user_data->roles[0];
 			$registered_date = $user_data->user_registered;
-			$lineData        = [ $first_name, $last_name, $email, $role, $registered_date ];
+			$lineData        = [];
+
+			if ( in_array( 'ID', $options ) ) {
+				array_push( $lineData, $user_id );
+			}
+			if ( in_array( 'First name', $options ) ) {
+				array_push( $lineData, $first_name );
+			}
+			if ( in_array( 'Last name', $options ) ) {
+				array_push( $lineData, $last_name );
+			}
+			if ( in_array( 'Email', $options ) ) {
+				array_push( $lineData, $email );
+			}
+			if ( in_array( 'Role', $options ) ) {
+				array_push( $lineData, $role );
+			}
+			if ( in_array( 'Registered date', $options ) ) {
+				array_push( $lineData, $registered_date );
+			}
 
 			fputcsv( $out, $lineData, $delimiter );
 		}
