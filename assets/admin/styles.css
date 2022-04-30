@@ -1,0 +1,16 @@
+.btn_container {
+    display: flex;
+}
+
+.delimiter {
+    margin: 8px 0;
+}
+
+.select_all_btn, .clear_all_btn {
+    cursor: pointer;
+    margin: 8px 0;
+}
+
+.select_all_btn:hover, .clear_all_btn:hover {
+    text-decoration: underline;
+}
