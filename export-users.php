@@ -88,6 +88,10 @@ class ExportUsers {
                 <label for="user_id"><?= esc_html__( 'User ID', 'export-users' ); ?></label>
             </div>
             <div>
+                <input type="checkbox" id="nickname" value="Nickname" name="export_settings_options[checkbox_element][]" <?php checked( in_array( 'Nickname', $checkbox_element ), 1 ); ?> />
+                <label for="nickname"><?= esc_html__( 'Nickname', 'export-users' ); ?></label>
+            </div>
+            <div>
                 <input type="checkbox" id="first_name" value="First name" name="export_settings_options[checkbox_element][]" <?php checked( in_array( 'First name', $checkbox_element ), 1 ); ?> />
                 <label for="first_name"><?= esc_html__( 'First name', 'export-users' ); ?></label>
             </div>
@@ -102,6 +106,10 @@ class ExportUsers {
             <div>
                 <input type="checkbox" id="role" value="Role" name="export_settings_options[checkbox_element][]" <?php checked( in_array( 'Role', $checkbox_element ), 1 ); ?> />
                 <label for="role"><?= esc_html__( 'Role', 'export-users' ); ?></label>
+            </div>
+            <div>
+                <input type="checkbox" id="website" value="Website" name="export_settings_options[checkbox_element][]" <?php checked( in_array( 'Website', $checkbox_element ), 1 ); ?> />
+                <label for="website"><?= esc_html__( 'Website', 'export-users' ); ?></label>
             </div>
             <div>
                 <input type="checkbox" id="registered_date" value="Registered date" name="export_settings_options[checkbox_element][]" <?php checked( in_array( 'Registered date', $checkbox_element ), 1 ); ?> />
@@ -211,52 +219,60 @@ class ExportUsers {
 
 	public function export_template( $export_users ) {
 
-		$options   = get_option( 'export_settings_options' )['checkbox_element'];
-        if (!empty($options)) {
-	        $delimiter = ",";
-	        $filename  = "users-" . date( 'd-m-Y' ) . ".csv";
-	        $out       = fopen( 'php://output', 'w' );
+		$options = get_option( 'export_settings_options' )['checkbox_element'];
+		if ( ! empty( $options ) ) {
+			$delimiter = ",";
+			$filename  = "users-" . date( 'd-m-Y' ) . ".csv";
+			$out       = fopen( 'php://output', 'w' );
 
-	        fputcsv( $out, $options, $delimiter );
+			fputcsv( $out, $options, $delimiter );
 
-	        foreach ( $export_users as $user_id ) {
-		        $user_data       = get_userdata( $user_id );
-		        $first_name      = ( isset( $user_data->first_name ) && $user_data->first_name != '' ) ? $user_data->first_name : '';
-		        $last_name       = ( isset( $user_data->last_name ) && $user_data->last_name != '' ) ? $user_data->last_name : '';
-		        $email           = $user_data->user_email;
-		        $role            = $user_data->roles[0];
-		        $registered_date = $user_data->user_registered;
-		        $lineData        = [];
+			foreach ( $export_users as $user_id ) {
+				$user_data       = get_userdata( $user_id );
+				$nickname        = $user_data->nickname;
+				$first_name      = ( isset( $user_data->first_name ) && $user_data->first_name != '' ) ? $user_data->first_name : '';
+				$last_name       = ( isset( $user_data->last_name ) && $user_data->last_name != '' ) ? $user_data->last_name : '';
+				$email           = $user_data->user_email;
+				$role            = $user_data->roles[0];
+				$website         = $user_data->user_url;
+				$registered_date = $user_data->user_registered;
+				$lineData        = [];
 
-		        if ( in_array( 'User ID', $options ) ) {
-			        array_push( $lineData, $user_id );
-		        }
-		        if ( in_array( 'First name', $options ) ) {
-			        array_push( $lineData, $first_name );
-		        }
-		        if ( in_array( 'Last name', $options ) ) {
-			        array_push( $lineData, $last_name );
-		        }
-		        if ( in_array( 'Email', $options ) ) {
-			        array_push( $lineData, $email );
-		        }
-		        if ( in_array( 'Role', $options ) ) {
-			        array_push( $lineData, $role );
-		        }
-		        if ( in_array( 'Registered date', $options ) ) {
-			        array_push( $lineData, $registered_date );
-		        }
+				if ( in_array( 'User ID', $options ) ) {
+					array_push( $lineData, $user_id );
+				}
+				if ( in_array( 'Nickname', $options ) ) {
+					array_push( $lineData, $nickname );
+				}
+				if ( in_array( 'First name', $options ) ) {
+					array_push( $lineData, $first_name );
+				}
+				if ( in_array( 'Last name', $options ) ) {
+					array_push( $lineData, $last_name );
+				}
+				if ( in_array( 'Email', $options ) ) {
+					array_push( $lineData, $email );
+				}
+				if ( in_array( 'Role', $options ) ) {
+					array_push( $lineData, $role );
+				}
+				if ( in_array( 'Website', $options ) ) {
+					array_push( $lineData, $website );
+				}
+				if ( in_array( 'Registered date', $options ) ) {
+					array_push( $lineData, $registered_date );
+				}
 
-		        fputcsv( $out, $lineData, $delimiter );
-	        }
+				fputcsv( $out, $lineData, $delimiter );
+			}
 
-	        header( "Content-type: application/force-download" );
-	        header( 'Content-Disposition: inline; filename="' . $filename . '";' );
+			header( "Content-type: application/force-download" );
+			header( 'Content-Disposition: inline; filename="' . $filename . '";' );
 
-	        fpassthru( $out );
-        } else {
-            wp_safe_redirect('users.php?page=export_settings');
-        }
+			fpassthru( $out );
+		} else {
+			wp_safe_redirect( 'users.php?page=export_settings' );
+		}
 	}
 
 }
