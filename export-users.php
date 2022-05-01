@@ -42,7 +42,7 @@ class ExportUsers {
 		flush_rewrite_rules();
 	}
 
-    // deactivation function
+	// deactivation function
 	public static function deactivation() {
 
 		//update rewrite rules
@@ -69,7 +69,7 @@ class ExportUsers {
 		);
 	}
 
-    // checkbox callback function
+	// checkbox callback function
 	function sandbox_checkbox_element_callback() {
 
 		$options          = get_option( 'export_settings_options', [] );
@@ -144,7 +144,7 @@ class ExportUsers {
 		require_once plugin_dir_path( __FILE__ ) . 'admin/admin.php';
 	}
 
-    // add admin footer script
+	// add admin footer script
 	public function bulk_admin_footer() {
 		// check if the user page is
 		$screen = get_current_screen();
@@ -195,15 +195,18 @@ class ExportUsers {
 		exit();
 	}
 
-    // export selected users
+	// export selected users
 	public function export_selected( $user_ids ) {
 		if ( current_user_can( 'manage_options' ) ) {
 
 			$export_users = $user_ids;
 			$this->export_template( $export_users );
 
-			exit();
+			return true;
 		}
+
+		// current user has no access to export the template
+		return false;
 	}
 
 	// export all users
@@ -220,7 +223,7 @@ class ExportUsers {
 		}
 	}
 
-    // csv template
+	// csv template
 	public function export_template( $export_users ) {
 
 		$options = get_option( 'export_settings_options' )['checkbox_element'];
