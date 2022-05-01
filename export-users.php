@@ -59,18 +59,23 @@ class ExportUsers {
 	public function settings_init() {
 
 		register_setting( 'export-users_settings', 'export_settings_options' );
-		add_settings_section( 'export_settings_section', esc_html__( 'Export settings', 'export-users' ), '', 'export_settings' );
+		add_settings_section( 'export_settings_section', esc_html__( 'Export settings', 'export-users' ), [$this, 'settings_section_callback'], 'export_settings' );
 		add_settings_field(
 			'checkbox_element',
-			'Exported user fields',
-			[ $this, 'sandbox_checkbox_element_callback' ],
+			'Select fields:',
+			[ $this, 'checkbox_element_callback' ],
 			'export_settings',
 			'export_settings_section'
 		);
 	}
 
+	// section callback function
+    public function settings_section_callback() {
+	    echo esc_html__('Please select the required fields to export and save', 'export-users');
+    }
+
 	// checkbox callback function
-	function sandbox_checkbox_element_callback() {
+	public function checkbox_element_callback() {
 
 		$options          = get_option( 'export_settings_options', [] );
 		$checkbox_element = isset( $options['checkbox_element'] ) ? (array) $options['checkbox_element'] : [];
