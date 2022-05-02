@@ -49,7 +49,7 @@ class ExportUsers {
 		flush_rewrite_rules();
 	}
 
-	// enqueue Admin
+	// enqueue admin
 	public function enqueue_admin() {
 		wp_enqueue_style( 'exportUserStyle', plugins_url( '/assets/admin/styles.css', __FILE__ ) );
 		wp_enqueue_script( 'exportUserScript', plugins_url( '/assets/admin/scripts.js', __FILE__ ) );
@@ -59,7 +59,7 @@ class ExportUsers {
 	public function settings_init() {
 
 		register_setting( 'export-users_settings', 'export_settings_options' );
-		add_settings_section( 'export_settings_section', esc_html__( 'Export settings', 'export-users' ), [$this, 'settings_section_callback'], 'export_settings' );
+		add_settings_section( 'export_settings_section', esc_html__( 'Export settings', 'export-users' ), [ $this, 'settings_section_callback' ], 'export_settings' );
 		add_settings_field(
 			'checkbox_element',
 			'Select fields:',
@@ -70,57 +70,18 @@ class ExportUsers {
 	}
 
 	// section callback function
-    public function settings_section_callback() {
-	    echo esc_html__('Please select the required fields to export and save', 'export-users');
-    }
+	public function settings_section_callback() {
+		echo esc_html__( 'Please select the required fields to export and save', 'export-users' );
+	}
 
 	// checkbox callback function
 	public function checkbox_element_callback() {
 
 		$options          = get_option( 'export_settings_options', [] );
 		$checkbox_element = isset( $options['checkbox_element'] ) ? (array) $options['checkbox_element'] : [];
-		?>
 
-        <div class="settings_body">
-            <div class="btn_container">
-                <div class="select_all_btn">Select all</div>
-                <div class="delimiter">&nbsp;/&nbsp;</div>
-                <div class="clear_all_btn">Clear</div>
-            </div>
-            <div>
-                <input type="checkbox" id="user_id" value="User ID" name="export_settings_options[checkbox_element][]" <?php checked( in_array( 'User ID', $checkbox_element ), 1 ); ?> />
-                <label for="user_id"><?= esc_html__( 'User ID', 'export-users' ); ?></label>
-            </div>
-            <div>
-                <input type="checkbox" id="nickname" value="Nickname" name="export_settings_options[checkbox_element][]" <?php checked( in_array( 'Nickname', $checkbox_element ), 1 ); ?> />
-                <label for="nickname"><?= esc_html__( 'Nickname', 'export-users' ); ?></label>
-            </div>
-            <div>
-                <input type="checkbox" id="first_name" value="First name" name="export_settings_options[checkbox_element][]" <?php checked( in_array( 'First name', $checkbox_element ), 1 ); ?> />
-                <label for="first_name"><?= esc_html__( 'First name', 'export-users' ); ?></label>
-            </div>
-            <div>
-                <input type="checkbox" id="last_name" value="Last name" name="export_settings_options[checkbox_element][]" <?php checked( in_array( 'Last name', $checkbox_element ), 1 ); ?> />
-                <label for="last_name"><?= esc_html__( 'Last name', 'export-users' ); ?></label>
-            </div>
-            <div>
-                <input type="checkbox" id="email" value="Email" name="export_settings_options[checkbox_element][]" <?php checked( in_array( 'Email', $checkbox_element ), 1 ); ?> />
-                <label for="email"><?= esc_html__( 'Email', 'export-users' ); ?></label>
-            </div>
-            <div>
-                <input type="checkbox" id="role" value="Role" name="export_settings_options[checkbox_element][]" <?php checked( in_array( 'Role', $checkbox_element ), 1 ); ?> />
-                <label for="role"><?= esc_html__( 'Role', 'export-users' ); ?></label>
-            </div>
-            <div>
-                <input type="checkbox" id="website" value="Website" name="export_settings_options[checkbox_element][]" <?php checked( in_array( 'Website', $checkbox_element ), 1 ); ?> />
-                <label for="website"><?= esc_html__( 'Website', 'export-users' ); ?></label>
-            </div>
-            <div>
-                <input type="checkbox" id="registered_date" value="Registered date" name="export_settings_options[checkbox_element][]" <?php checked( in_array( 'Registered date', $checkbox_element ), 1 ); ?> />
-                <label for="registered_date"><?= esc_html__( 'Registered date', 'export-users' ); ?></label>
-            </div>
-        </div>
-		<?php
+        // include checkbox template
+		require_once plugin_dir_path( __FILE__ ) . 'admin/checkbox.php';
 	}
 
 	// add settings link to plugin page
@@ -144,7 +105,7 @@ class ExportUsers {
 		);
 	}
 
-	// ExportUsers admin HTML
+	// include settings page template
 	public function export_page() {
 		require_once plugin_dir_path( __FILE__ ) . 'admin/admin.php';
 	}
